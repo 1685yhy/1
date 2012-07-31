@@ -1931,6 +1931,7 @@ static void get_benchmark_work(struct work *work)
 	memcpy(work, &bench_block, min_size);
 	work->mandatory = true;
 	work->pool = pools[0];
+	work->faux = true;
 }
 
 static bool get_upstream_work(struct work *work, CURL *curl)
@@ -3933,6 +3934,11 @@ retry:
 			applog(LOG_WARNING, "Pool %d not providing work fast enough", pool->pool_no);
 			pool->getfail_occasions++;
 			total_go++;
+			if (thr->cgpu->api == &opencl_api) {
+				get_benchmark_work(work);
+				ret = true;
+				goto out;
+			}
 		}
 	}
 
@@ -4079,7 +4085,8 @@ static inline bool abandon_work(struct work *work, struct timeval *wdiff, uint64
 	if (wdiff->tv_sec > opt_scantime ||
 	    work->blk.nonce >= MAXTHREADS - hashes ||
 	    hashes >= 0xfffffffe ||
-	    stale_work(work, false))
+	    stale_work(work, false) ||
+	    work->faux)
 		return true;
 	return false;
 }

@@ -781,6 +781,7 @@ struct work {
 	bool		stale;
 	bool		mandatory;
 	bool		block;
+	bool		faux;
 
 	unsigned int	work_block;
 	int		id;

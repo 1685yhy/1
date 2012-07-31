@@ -1485,7 +1485,7 @@ static int64_t opencl_scanhash(struct thr_info *thr, struct work *work,
 	unsigned int threads;
 	int64_t hashes;
 
-	if (gpu->dynamic)
+	if (gpu->dynamic || work->faux)
 		blocking = CL_TRUE;
 	else
 		blocking = CL_FALSE;
@@ -1577,6 +1577,8 @@ static int64_t opencl_scanhash(struct thr_info *thr, struct work *work,
 	 * than enough to prevent repeating work */
 	work->blk.nonce += gpu->max_hashes;
 
+	if (work->faux)
+		hashes = 0;
 	return hashes;
 }
 
